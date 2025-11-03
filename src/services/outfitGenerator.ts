@@ -27,13 +27,9 @@ import {
   saveCachedComposite,
   uploadImage,
 } from "../lib/supabase";
+import type { OutfitGenerationResult } from "../types";
 
-// Types
-export interface OutfitGenerationResult {
-  success: boolean;
-  imageUrl?: string;
-  error?: string;
-}
+// Types come from src/types
 
 // Constants
 const MODEL = "gemini-2.5-flash-image-preview";

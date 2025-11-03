@@ -1,8 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import {
-  outfitGenerator,
-  OutfitGenerationResult,
-} from "../services/outfitGenerator";
+import { outfitGenerator } from "../services/outfitGenerator";
+import type { OutfitGenerationResult } from "../types";
 import { imageComposer } from "../services/imageComposer";
 import { rateLimiter } from "../services/rateLimiter";
 import type {
