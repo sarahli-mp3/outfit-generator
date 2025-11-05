@@ -21,9 +21,11 @@ export interface ClothingItem {
 
 export interface GeneratedOutfit {
   id: string;
-  top_id: string;
-  bottom_id: string;
+  top_id: string | null;
+  bottom_id: string | null;
   generated_image_url: string;
+  is_liked: boolean;
+  generator_source: "select" | "nano" | "transfer";
   created_at: string;
   updated_at: string;
 }
@@ -117,10 +119,52 @@ export async function saveCachedComposite(
     top_id: topId,
     bottom_id: bottomId,
     generated_image_url: generatedImageUrl,
+    generator_source: "select",
   });
 
   if (error) {
     console.error("Error saving cached composite:", error);
+    throw error;
+  }
+}
+
+export async function saveGeneratedOutfit(params: {
+  topId?: string | null;
+  bottomId?: string | null;
+  generatedImageUrl: string;
+  generatorSource: "select" | "nano" | "transfer";
+}): Promise<void> {
+  const {
+    topId = null,
+    bottomId = null,
+    generatedImageUrl,
+    generatorSource,
+  } = params;
+
+  const { error } = await supabase.from("generated_outfits").insert({
+    top_id: topId,
+    bottom_id: bottomId,
+    generated_image_url: generatedImageUrl,
+    generator_source: generatorSource,
+  });
+
+  if (error) {
+    console.error("Error saving generated outfit:", error);
+    throw error;
+  }
+}
+
+export async function setGeneratedOutfitLiked(
+  id: string,
+  isLiked: boolean
+): Promise<void> {
+  const { error } = await supabase
+    .from("generated_outfits")
+    .update({ is_liked: isLiked })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error updating is_liked:", error);
     throw error;
   }
 }
