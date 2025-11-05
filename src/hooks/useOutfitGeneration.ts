@@ -5,6 +5,7 @@ import {
 } from "../services/outfitGenerator";
 import { imageComposer } from "../services/imageComposer";
 import { rateLimiter } from "../services/rateLimiter";
+import { uploadImage, saveGeneratedOutfit } from "../lib/supabase";
 import type {
   ClothingItem,
   RateLimitResult,
@@ -35,6 +36,18 @@ export function useOutfitGeneration(): UseOutfitGenerationReturn {
   const canGenerate = useCallback((): RateLimitResult => {
     return rateLimiter.canMakeCall();
   }, []);
+
+  function dataUrlToFile(dataUrl: string, filename: string): File {
+    const parts = dataUrl.split(",");
+    const header = parts[0] || "";
+    const base64 = parts[1] || "";
+    const match = /data:(.*?);base64/.exec(header);
+    const mime = match?.[1] || "image/png";
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new File([bytes], filename, { type: mime });
+  }
 
   const generateOutfit = useCallback(
     async (top: ClothingItem, bottom: ClothingItem) => {
@@ -84,7 +97,13 @@ export function useOutfitGeneration(): UseOutfitGenerationReturn {
 
         // Try AI generation first
         const result: OutfitGenerationResult =
-          await outfitGenerator.generateOutfit(top.imageUrl, bottom.imageUrl);
+          await outfitGenerator.generateOutfit(
+            top.imageUrl,
+            bottom.imageUrl,
+            undefined,
+            top.id,
+            bottom.id
+          );
 
         if (result.success && result.imageUrl) {
           console.log("✨ AI-generated image created successfully");
@@ -183,10 +202,19 @@ export function useOutfitGeneration(): UseOutfitGenerationReturn {
 
         if (result.success && result.imageUrl) {
           console.log("✨ Nano outfit generated successfully");
-          setGeneratedImage(result.imageUrl);
+          let finalUrl = result.imageUrl;
+          if (finalUrl.startsWith("data:")) {
+            const file = dataUrlToFile(finalUrl, `nano_${Date.now()}.png`);
+            finalUrl = await uploadImage("GENERATED", file, file.name);
+          }
+          await saveGeneratedOutfit({
+            generatedImageUrl: finalUrl,
+            generatorSource: "nano",
+          });
+          setGeneratedImage(finalUrl);
           setIsComposite(false);
           cacheRef.current.set(key, {
-            url: result.imageUrl,
+            url: finalUrl,
             isComposite: false,
           });
         } else {
@@ -266,10 +294,19 @@ export function useOutfitGeneration(): UseOutfitGenerationReturn {
 
         if (result.success && result.imageUrl) {
           console.log("✨ Outfit transfer completed successfully");
-          setGeneratedImage(result.imageUrl);
+          let finalUrl = result.imageUrl;
+          if (finalUrl.startsWith("data:")) {
+            const file = dataUrlToFile(finalUrl, `transfer_${Date.now()}.png`);
+            finalUrl = await uploadImage("GENERATED", file, file.name);
+          }
+          await saveGeneratedOutfit({
+            generatedImageUrl: finalUrl,
+            generatorSource: "transfer",
+          });
+          setGeneratedImage(finalUrl);
           setIsComposite(false);
           cacheRef.current.set(key, {
-            url: result.imageUrl,
+            url: finalUrl,
             isComposite: false,
           });
         } else {
