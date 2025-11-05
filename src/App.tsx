@@ -38,7 +38,6 @@ function App() {
     useState<boolean>(false);
 
   // Load clothing items from Supabase on component mount
-  // This is so that you can do this and then you can styill fo this  and this is other this
   useEffect(() => {
     const loadClothingItems = async () => {
       try {
@@ -84,7 +83,6 @@ function App() {
         );
 
         // Always set the lists, even if empty
-        // this is so that you can see this
         setTopsList(convertedTops);
         setBottomsList(convertedBottoms);
 
@@ -113,11 +111,7 @@ function App() {
     });
   }, []);
 
-  // Debug logging to identify why tops/bottoms aren't showing
-  debugLog("App render - tops:", topsList);
-  debugLog("App render - bottoms:", bottomsList);
-  debugLog("App render - tops.length:", topsList.length);
-  debugLog("App render - bottoms.length:", bottomsList.length);
+  // (render-time debug logging removed to reduce console noise)
 
   const topsCarousel = useCarousel(topsList.length, "tops");
   const bottomsCarousel = useCarousel(bottomsList.length, "bottoms");
