@@ -4,6 +4,8 @@ interface UploadSectionProps {
   onToggleUploadMenu: () => void;
   onUploadTops: () => void;
   onUploadBottoms: () => void;
+  onTryTop?: () => void;
+  onTryBottom?: () => void;
 }
 
 export function UploadSection({
@@ -12,6 +14,8 @@ export function UploadSection({
   onToggleUploadMenu,
   onUploadTops,
   onUploadBottoms,
+  onTryTop,
+  onTryBottom,
 }: UploadSectionProps) {
   return (
     <div
@@ -22,6 +26,23 @@ export function UploadSection({
         position: "relative",
       }}
     >
+      {/* Try-on buttons aligned on the same row as the folder icon */}
+      <div style={{ display: "flex", gap: "8px", marginRight: "8px" }}>
+        <button
+          className="button default"
+          onClick={onTryTop}
+          style={{ padding: "2px 8px" }}
+        >
+          Try on Top
+        </button>
+        <button
+          className="button default"
+          onClick={onTryBottom}
+          style={{ padding: "2px 8px" }}
+        >
+          Try on Bottom
+        </button>
+      </div>
       <img
         src="/assets/Folder.png"
         alt="Upload"

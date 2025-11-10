@@ -1,56 +1,33 @@
 interface MenuBarProps {
-
+  activeTab: "main" | "gallery";
+  onChangeTab: (tab: "main" | "gallery") => void;
 }
 
-export function MenuBar({
-}: MenuBarProps) {
+export function MenuBar({ activeTab, onChangeTab }: MenuBarProps) {
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: 16,
-        padding: "8px 10px",
-        fontSize: 14,
-      }}
-    >
-      <a href="#" style={{ textDecoration: "underline", color: "#000" }}>
-        File
-      </a>
-      <a href="#" style={{ textDecoration: "underline", color: "#000" }}>
-        Edit
-      </a>
-      <a href="#" style={{ textDecoration: "underline", color: "#000" }}>
-        View
-      </a>
-      <a href="#" style={{ textDecoration: "underline", color: "#000" }}>
-        Help
-      </a>
-      {/* <button
-        onClick={onTestConnection}
-        style={{
-          padding: "2px 8px",
-          fontSize: "12px",
-          background: "#c0c0c0",
-          border: "1px outset #c0c0c0",
-          cursor: "pointer",
-          marginLeft: "8px",
-        }}
-      >
-        Test DB
-      </button>
-      <button
-        onClick={onDebugDataMismatch}
-        style={{
-          padding: "2px 8px",
-          fontSize: "12px",
-          background: "#c0c0c0",
-          border: "1px outset #c0c0c0",
-          cursor: "pointer",
-          marginLeft: "8px",
-        }}
-      >
-        Check Data
-      </button> */}
-    </div>
+    <menu role="tablist" style={{ margin: 0, padding: "6px 10px" }}>
+      <li role="tab" aria-selected={activeTab === "main"}>
+        <a
+          href="#tabs"
+          onClick={(e) => {
+            e.preventDefault();
+            onChangeTab("main");
+          }}
+        >
+          Main
+        </a>
+      </li>
+      <li role="tab" aria-selected={activeTab === "gallery"}>
+        <a
+          href="#tabs"
+          onClick={(e) => {
+            e.preventDefault();
+            onChangeTab("gallery");
+          }}
+        >
+          Gallery
+        </a>
+      </li>
+    </menu>
   );
 }

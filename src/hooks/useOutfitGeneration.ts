@@ -334,6 +334,12 @@ export function useOutfitGeneration(): UseOutfitGenerationReturn {
     setError(null);
   }, []);
 
+  const showCachedOutfit = useCallback((url: string) => {
+    setGeneratedImage(url);
+    setIsComposite(false);
+    setError(null);
+  }, []);
+
   return {
     generatedImage,
     isGenerating,
@@ -345,5 +351,6 @@ export function useOutfitGeneration(): UseOutfitGenerationReturn {
     generateOutfitTransfer,
     clearGeneratedImage,
     canGenerate,
+    showCachedOutfit,
   };
 }

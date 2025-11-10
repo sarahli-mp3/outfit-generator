@@ -15,6 +15,7 @@ export interface ClothingItem {
   name: string;
   category: "tops" | "bottoms";
   image_url: string;
+  is_shopping?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -169,6 +170,52 @@ export async function setGeneratedOutfitLiked(
   }
 }
 
+export async function setGeneratedOutfitLikedByUrl(
+  imageUrl: string,
+  isLiked: boolean
+): Promise<void> {
+  const { error } = await supabase
+    .from("generated_outfits")
+    .update({ is_liked: isLiked })
+    .eq("generated_image_url", imageUrl);
+
+  if (error) {
+    console.error("Error updating is_liked by URL:", error);
+    throw error;
+  }
+}
+
+export async function getGeneratedOutfitByUrl(
+  imageUrl: string
+): Promise<GeneratedOutfit | null> {
+  const { data, error } = await supabase
+    .from("generated_outfits")
+    .select("*")
+    .eq("generated_image_url", imageUrl)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error fetching generated outfit by URL:", error);
+    return null;
+  }
+  return (data as GeneratedOutfit) || null;
+}
+
+export async function getLikedGeneratedOutfits(): Promise<GeneratedOutfit[]> {
+  const { data, error } = await supabase
+    .from("generated_outfits")
+    .select("*")
+    .eq("is_liked", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching liked generated outfits:", error);
+    return [];
+  }
+
+  return (data as GeneratedOutfit[]) || [];
+}
+
 export async function getClothingItems(
   category: "tops" | "bottoms"
 ): Promise<ClothingItem[]> {
@@ -189,7 +236,8 @@ export async function getClothingItems(
 export async function addClothingItem(
   name: string,
   category: "tops" | "bottoms",
-  imageFile: File
+  imageFile: File,
+  options?: { isShopping?: boolean }
 ): Promise<ClothingItem> {
   // Generate unique filename
   const timestamp = Date.now();
@@ -206,6 +254,7 @@ export async function addClothingItem(
       name,
       category,
       image_url: imageUrl,
+      is_shopping: Boolean(options?.isShopping),
     })
     .select()
     .single();

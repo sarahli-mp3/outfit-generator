@@ -343,7 +343,7 @@ body {
 }
 
 /* Make the root 98.css window fill the screen exactly */
-.window {
+.outfit-window.window {
   position: fixed;
   inset: 0; /* top:0 right:0 bottom:0 left:0 */
   width: 100%;
@@ -353,9 +353,22 @@ body {
 }
 
 /* Use flex so the title bar stays fixed and body fills the rest */
-.window > .window-body {
+.outfit-window.window > .window-body {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0; /* prevent overflow from flex children */
+}
+
+/* ===== Try-On & Cropper minimal styles ===== */
+.modal-window .title-bar {
+  user-select: none;
+}
+.tryon-buttons .button {
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  font-size: 12px;
+}
+.tryon-buttons .button:active {
+  border: 2px inset #c0c0c0;
 }
