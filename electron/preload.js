@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from "electron";
+const { contextBridge, ipcRenderer } = require("electron");
 
 if (process.env.NODE_ENV !== "production") {
   console.log("Preload script loaded");

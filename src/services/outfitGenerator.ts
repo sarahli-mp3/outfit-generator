@@ -37,7 +37,7 @@ export interface OutfitGenerationResult {
 
 // Constants
 const MODEL = "gemini-2.5-flash-image-preview";
-const DEFAULT_BODY_PATH = "/assets/model.png";
+const DEFAULT_BODY_PATH = "../public/assets/model.png";
 const CACHE_PREFIX = "outfit_";
 
 const genAI = new GoogleGenAI({

@@ -23,7 +23,7 @@ export function UploadSection({
       }}
     >
       <img
-        src="/assets/Folder.png"
+        src="../public/assets/Folder.png"
         alt="Upload"
         onClick={onToggleUploadMenu}
         style={{

@@ -5,3 +5,7 @@
 **/.env
 **/*.env
 node_modules
+/.vs
+/dist
+/dist*
+dist

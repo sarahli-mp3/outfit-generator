@@ -55,7 +55,7 @@ export function OutfitPreview({
             }}
           >
             <img
-              src="/assets/model.png"
+              src="../public/assets/model.png"
               alt="Model"
               style={{
                 width: "100%",

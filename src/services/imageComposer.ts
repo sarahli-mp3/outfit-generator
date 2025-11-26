@@ -18,7 +18,7 @@ interface PositioningConfig {
 }
 
 // Constants
-const DEFAULT_BODY_PATH = "/assets/model.png";
+const DEFAULT_BODY_PATH = "../public/assets/model.png";
 const TOP_POSITION_RATIO = 0.15; // 15% from top
 const BOTTOM_POSITION_RATIO = 0.4; // 40% from top
 const MAX_TOP_SCALE_RATIO = 0.3; // Max 30% of canvas width

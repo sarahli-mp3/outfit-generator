@@ -130,7 +130,7 @@ function createWindow() {
     win.loadURL(DEV_URL);
     win.webContents.openDevTools();
   } else {
-    win.loadFile(join(__dirname, "../index.html"));
+    win.loadFile(join(__dirname, "../dist/index.html"));
   }
 
   // Clear cache and storage data on startup (commented out for now)
