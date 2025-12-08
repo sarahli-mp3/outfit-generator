@@ -8,7 +8,10 @@ I’m **Sarah** — [YouTube](https://www.youtube.com/@sarahliyt) | [Instagram](
 
 ## 🧠 What It Is  
 
-A cozy Windows 98-inspired desktop app that lets you choose tops and bottoms, upload your own clothes, and see AI-generated outfit previews.  
+A cozy Windows 98-inspired desktop app that lets you choose tops and bottoms, upload your own clothes, and see AI-generated outfit previews.
+
+Features:
+- You can customize outfits with a nano banana prompt that will generate an outfit for a particular occasion
 
 ---
 
