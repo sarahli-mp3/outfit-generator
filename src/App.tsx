@@ -6,18 +6,24 @@ import {
   addClothingItem,
   getClothingItems,
   ClothingItem as SupabaseClothingItem,
+  getCachedComposite,
+  getGeneratedOutfitByUrl,
+  setGeneratedOutfitLikedByUrl,
 } from "./lib/supabase";
 import { rateLimiter } from "./services/rateLimiter";
 import { LocalClothingItem, RateLimitResult } from "./types";
 
 // Import components
 import { MenuBar } from "./components/MenuBar";
+import { Gallery } from "./components/Gallery.tsx";
 import { UploadSection } from "./components/UploadSection";
 import { ClothingCarousel } from "./components/ClothingCarousel";
 import { ControlButtons } from "./components/ControlButtons";
 import { OutfitPreview } from "./components/OutfitPreview";
 import { NanoWindow } from "./components/NanoWindow";
 import { OutfitTransferWindow } from "./components/OutfitTransferWindow";
+import { ScreenCropperModal } from "./components/ScreenCropperModal";
+import { deleteClothingItem } from "./lib/supabase";
 
 // Debug logger (no-op in production)
 const debugLog = (...args: any[]) => {
@@ -26,6 +32,7 @@ const debugLog = (...args: any[]) => {
 
 function App() {
   const [previewTop, setPreviewTop] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<"main" | "gallery">("main");
   const [previewBottom, setPreviewBottom] = useState<number>(0);
   const [topsList, setTopsList] = useState<LocalClothingItem[]>([]);
   const [bottomsList, setBottomsList] = useState<LocalClothingItem[]>([]);
@@ -36,6 +43,15 @@ function App() {
   const [nanoText, setNanoText] = useState<string>("");
   const [showOutfitTransferWindow, setShowOutfitTransferWindow] =
     useState<boolean>(false);
+  // const [showAlreadyWornWindow, setShowAlreadyWornWindow] =
+  //   useState<boolean>(false);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [showCropper, setShowCropper] = useState<boolean>(false);
+  const [cropCategory, setCropCategory] = useState<"tops" | "bottoms">("tops");
+  const [pendingSelect, setPendingSelect] = useState<{
+    category: "tops" | "bottoms";
+    id: string;
+  } | null>(null);
 
   // Load clothing items from Supabase on component mount
   // This is so that you can do this and then you can styill fo this  and this is other this
@@ -66,6 +82,7 @@ function App() {
               scale: 1.0,
               zIndex: 10,
             },
+            isShopping: Boolean((item as any).is_shopping),
           })
         );
 
@@ -80,6 +97,7 @@ function App() {
               scale: 1.0,
               zIndex: 9,
             },
+            isShopping: Boolean((item as any).is_shopping),
           })
         );
 
@@ -130,6 +148,7 @@ function App() {
     generateOutfitTransfer,
     clearGeneratedImage,
     canGenerate,
+    showCachedOutfit,
   } = useOutfitGeneration();
 
   // Check if API key is configured
@@ -236,10 +255,29 @@ function App() {
     });
   }, [topsList, bottomsList, topsCarousel, bottomsCarousel]);
 
-  // Handle select button - generate outfit with rate limiting
+  // Handle select button - cache-first, then generate with rate limiting
   const handleSelect = useCallback(async () => {
+    const topItem = topsList[previewTop];
+    const bottomItem = bottomsList[previewBottom];
+    if (!topItem || !bottomItem) return;
+
+    // 1) Try Supabase cache first (works even without API key)
+    try {
+      const existingUrl = await getCachedComposite(topItem.id, bottomItem.id);
+      if (existingUrl) {
+        debugLog("✅ Loaded cached outfit from Supabase", existingUrl);
+        showCachedOutfit(existingUrl);
+        return;
+      }
+    } catch (e) {
+      console.warn("Cache lookup failed; will try generation if possible", e);
+    }
+
+    // 2) If no cache, only proceed if API key is available and rate limit allows
     if (!hasApiKey) {
-      debugLog("API key not configured, skipping outfit generation");
+      debugLog(
+        "API key not configured and no cache found; skipping generation"
+      );
       return;
     }
 
@@ -256,19 +294,12 @@ function App() {
       return;
     }
 
-    const topItem = topsList[previewTop];
-    const bottomItem = bottomsList[previewBottom];
-
-    if (topItem && bottomItem) {
-      debugLog("🤖 Generating outfit with:", {
-        top: topItem.id,
-        bottom: bottomItem.id,
-      });
-
-      // Reset progress and start generation
-      setGenerationProgress(0);
-      await generateOutfit(topItem, bottomItem);
-    }
+    debugLog("🤖 Generating outfit with:", {
+      top: topItem.id,
+      bottom: bottomItem.id,
+    });
+    setGenerationProgress(0);
+    await generateOutfit(topItem, bottomItem);
   }, [
     canGenerate,
     generateOutfit,
@@ -277,7 +308,36 @@ function App() {
     previewBottom,
     topsList,
     bottomsList,
+    showCachedOutfit,
   ]);
+
+  // Reset and fetch like state when generated image changes
+  useEffect(() => {
+    let cancelled = false;
+    async function loadLike() {
+      setIsLiked(false);
+      if (!generatedImage) return;
+      const row = await getGeneratedOutfitByUrl(generatedImage);
+      if (!cancelled && row) setIsLiked(Boolean(row.is_liked));
+    }
+    loadLike();
+    return () => {
+      cancelled = true;
+    };
+  }, [generatedImage]);
+
+  const handleToggleLike = useCallback(
+    async (checked: boolean) => {
+      if (!generatedImage) return;
+      setIsLiked(checked);
+      try {
+        await setGeneratedOutfitLikedByUrl(generatedImage, checked);
+      } catch (e) {
+        console.error("Failed to update like state:", e);
+      }
+    },
+    [generatedImage]
+  );
 
   // Progress animation effect
   useEffect(() => {
@@ -314,6 +374,24 @@ function App() {
   useEffect(() => {
     setPreviewBottom(bottomsCarousel.index);
   }, [bottomsCarousel.index]);
+
+  // After adding a new item, move carousel to show it
+  useEffect(() => {
+    if (!pendingSelect) return;
+    if (pendingSelect.category === "tops") {
+      const idx = topsList.findIndex((i) => i.id === pendingSelect.id);
+      if (idx >= 0) {
+        topsCarousel.setIndex(idx);
+        setPendingSelect(null);
+      }
+    } else {
+      const idx = bottomsList.findIndex((i) => i.id === pendingSelect.id);
+      if (idx >= 0) {
+        bottomsCarousel.setIndex(idx);
+        setPendingSelect(null);
+      }
+    }
+  }, [pendingSelect, topsList, bottomsList, topsCarousel, bottomsCarousel]);
 
   // Get current rate limit status for button state
   const rateLimitStatus: RateLimitResult = canGenerate();
@@ -405,9 +483,33 @@ function App() {
     },
     [hasApiKey, canGenerate, generateOutfitTransfer]
   );
+
+  const handleDeleteItem = useCallback(
+    async (category: "tops" | "bottoms", id: string) => {
+      try {
+        await deleteClothingItem(id);
+        if (category === "tops") {
+          setTopsList((prev) => prev.filter((i) => i.id !== id));
+          // Clamp carousel index if needed
+          if (topsCarousel.index >= Math.max(0, topsList.length - 1)) {
+            topsCarousel.setIndex(Math.max(0, topsCarousel.index - 1));
+          }
+        } else {
+          setBottomsList((prev) => prev.filter((i) => i.id !== id));
+          if (bottomsCarousel.index >= Math.max(0, bottomsList.length - 1)) {
+            bottomsCarousel.setIndex(Math.max(0, bottomsCarousel.index - 1));
+          }
+        }
+      } catch (e) {
+        console.error("Failed to delete clothing item:", e);
+        alert("Failed to delete item. Please try again.");
+      }
+    },
+    [topsCarousel, bottomsCarousel, topsList.length, bottomsList.length]
+  );
   return (
     <div
-      className="window"
+      className="window outfit-window"
       style={{ width: "100vw", height: "100vh", margin: 0 }}
     >
       <div className="title-bar">
@@ -424,56 +526,89 @@ function App() {
           padding: 0,
           height: "calc(100vh - 36px)",
           background: "#c0c0c0",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        <MenuBar />
+        <MenuBar activeTab={activeTab} onChangeTab={setActiveTab} />
         <div
-          className="main-container"
-          style={{ width: "100%", height: "calc(100% - 32px)" }}
+          className="window"
+          role="tabpanel"
+          style={{ flex: 1, margin: "0 8px 8px 8px" }}
         >
-          {/* Left Column - Selection Area */}
-          <div className="left-column">
-            <UploadSection
-              isUploading={isUploading}
-              showUploadMenu={showUploadMenu}
-              onToggleUploadMenu={() => setShowUploadMenu(!showUploadMenu)}
-              onUploadTops={() => handleFileUpload("tops")}
-              onUploadBottoms={() => handleFileUpload("bottoms")}
-            />
+          <div className="window-body" style={{ padding: 0, height: "100%" }}>
+            {activeTab === "gallery" ? (
+              <Gallery />
+            ) : (
+              <div
+                className="main-container"
+                style={{ width: "100%", height: "100%" }}
+              >
+                {/* Left Column - Selection Area */}
+                <div className="left-column">
+                  <UploadSection
+                    isUploading={isUploading}
+                    showUploadMenu={showUploadMenu}
+                    onToggleUploadMenu={() =>
+                      setShowUploadMenu(!showUploadMenu)
+                    }
+                    onUploadTops={() => handleFileUpload("tops")}
+                    onUploadBottoms={() => handleFileUpload("bottoms")}
+                    onTryTop={() => {
+                      setCropCategory("tops");
+                      setShowCropper(true);
+                    }}
+                    onTryBottom={() => {
+                      setCropCategory("bottoms");
+                      setShowCropper(true);
+                    }}
+                  />
 
-            <ClothingCarousel
-              items={topsList}
-              carousel={topsCarousel}
-              category="tops"
-              onImageError={handleImageError}
-            />
+                  <ClothingCarousel
+                    items={topsList}
+                    carousel={topsCarousel}
+                    category="tops"
+                    onImageError={handleImageError}
+                    onDeleteItem={(id) => {
+                      // handled below with shared handler
+                      handleDeleteItem("tops", id);
+                    }}
+                  />
 
-            <ClothingCarousel
-              items={bottomsList}
-              carousel={bottomsCarousel}
-              category="bottoms"
-              onImageError={handleImageError}
-            />
+                  <ClothingCarousel
+                    items={bottomsList}
+                    carousel={bottomsCarousel}
+                    category="bottoms"
+                    onImageError={handleImageError}
+                    onDeleteItem={(id) => {
+                      handleDeleteItem("bottoms", id);
+                    }}
+                  />
 
-            <ControlButtons
-              hasApiKey={hasApiKey}
-              canGenerateNow={canGenerateNow}
-              rateLimitStatus={rateLimitStatus}
-              onRandom={handleRandom}
-              onSelect={handleSelect}
-              onNanoBananify={() => setShowNanoWindow(true)}
-              onOutfitTransfer={() => setShowOutfitTransferWindow(true)}
-            />
+                  <ControlButtons
+                    hasApiKey={hasApiKey}
+                    canGenerateNow={canGenerateNow}
+                    rateLimitStatus={rateLimitStatus}
+                    onRandom={handleRandom}
+                    onSelect={handleSelect}
+                    onNanoBananify={() => setShowNanoWindow(true)}
+                    onOutfitTransfer={() => setShowOutfitTransferWindow(true)}
+                  />
+                </div>
+
+                <OutfitPreview
+                  hasApiKey={hasApiKey}
+                  isGenerating={isGenerating}
+                  generationProgress={generationProgress}
+                  error={error}
+                  generatedImage={generatedImage}
+                  onClearGeneratedImage={clearGeneratedImage}
+                  isLiked={isLiked}
+                  onToggleLike={handleToggleLike}
+                />
+              </div>
+            )}
           </div>
-
-          <OutfitPreview
-            hasApiKey={hasApiKey}
-            isGenerating={isGenerating}
-            generationProgress={generationProgress}
-            error={error}
-            generatedImage={generatedImage}
-            onClearGeneratedImage={clearGeneratedImage}
-          />
         </div>
       </div>
 
@@ -490,6 +625,50 @@ function App() {
         onClose={() => setShowOutfitTransferWindow(false)}
         onUploadImage={handleOutfitTransfer}
       />
+
+      <ScreenCropperModal
+        open={showCropper}
+        category={cropCategory}
+        onClose={() => setShowCropper(false)}
+        onConfirm={async (file: File) => {
+          try {
+            const nextNumber =
+              cropCategory === "tops"
+                ? topsList.length + 1
+                : bottomsList.length + 1;
+            const name = `${
+              cropCategory === "tops" ? "Shop Top" : "Shop Bottom"
+            } ${nextNumber}`;
+            const newItem = await addClothingItem(name, cropCategory, file, {
+              isShopping: true,
+            });
+            const newClothingItem: LocalClothingItem = {
+              id: newItem.id,
+              name: newItem.name,
+              imageUrl: newItem.image_url,
+              offset: {
+                x: 0,
+                y: cropCategory === "tops" ? -20 : 50,
+                scale: 1.0,
+                zIndex: cropCategory === "tops" ? 10 : 9,
+              },
+              isShopping: true,
+            };
+            if (cropCategory === "tops") {
+              setTopsList((prev) => [...prev, newClothingItem]);
+              setPendingSelect({ category: "tops", id: newItem.id });
+            } else {
+              setBottomsList((prev) => [...prev, newClothingItem]);
+              setPendingSelect({ category: "bottoms", id: newItem.id });
+            }
+          } catch (e) {
+            console.error("Failed to add clothing item from capture:", e);
+            alert("Failed to save captured item. Please try again.");
+          }
+        }}
+      />
+
+      {/* Already worn window removed */}
     </div>
   );
 }

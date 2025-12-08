@@ -46,6 +46,7 @@ export interface UseOutfitGenerationReturn {
   generateOutfitTransfer: (inspirationFile: File) => Promise<void>;
   clearGeneratedImage: () => void;
   canGenerate: () => RateLimitResult;
+  showCachedOutfit: (url: string) => void;
 }
 
 // ===== Data Types =====
@@ -74,6 +75,7 @@ export interface LocalClothingItem {
     scale: number;
     zIndex: number;
   };
+  isShopping?: boolean;
 }
 
 export interface PersonConfig {

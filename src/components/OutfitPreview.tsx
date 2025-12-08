@@ -5,6 +5,8 @@ interface OutfitPreviewProps {
   error: string | null;
   generatedImage: string | null;
   onClearGeneratedImage: () => void;
+  isLiked: boolean;
+  onToggleLike: (checked: boolean) => void;
 }
 
 export function OutfitPreview({
@@ -14,6 +16,8 @@ export function OutfitPreview({
   error,
   generatedImage,
   onClearGeneratedImage,
+  isLiked,
+  onToggleLike,
 }: OutfitPreviewProps) {
   return (
     <div className="right-column">
@@ -109,6 +113,29 @@ export function OutfitPreview({
                 display: "block",
               }}
             />
+          </div>
+        )}
+        {hasApiKey && generatedImage && !isGenerating && (
+          <div
+            className="field-row"
+            style={{
+              position: "absolute",
+              top: "88%",
+              left: "70%",
+              transform: "translate(-50%, 0)",
+              zIndex: 10,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <input
+              id="like-checkbox"
+              type="checkbox"
+              checked={isLiked}
+              onChange={(e) => onToggleLike(e.target.checked)}
+            />
+            <label htmlFor="like-checkbox">Like this outfit</label>
           </div>
         )}
       </div>
