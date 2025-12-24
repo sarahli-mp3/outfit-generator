@@ -10,11 +10,13 @@ body,
 body {
   margin: 0;
   padding: 0;
-  background-color: #c0c0c0; /* Fallback */
+  background-color: #c0c0c0;
+  /* Fallback */
   background: #c0c0c0;
   width: 100vw;
   height: 100vh;
-  overflow: hidden; /* Prevent scrolling */
+  overflow: hidden;
+  /* Prevent scrolling */
   font-family: "MS Sans Serif", "Microsoft Sans Serif", "Segoe UI", sans-serif;
   -webkit-font-smoothing: none;
   font-smooth: never;
@@ -28,7 +30,8 @@ body {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  background: transparent; /* Ensure transparency */
+  background: transparent;
+  /* Ensure transparency */
 }
 
 /* Main layout container */
@@ -38,33 +41,44 @@ body {
   height: 100%;
   padding: 10px 20px 20px 20px;
   box-sizing: border-box;
-  gap: 20px; /* Increased gap to better balance the columns */
+  gap: 20px;
+  overflow: auto;
+  /* Allow scrolling if content overflows */
+  align-items: center;
+  /* Center columns vertically */
 }
 
 /* Left column - Selection area */
 .left-column {
-  width: 50%; /* Made equal to right column */
+  width: 50%;
+  height: 100%;
+  /* Take full height */
   display: flex;
   flex-direction: column;
   gap: 5px;
-  margin-top: 10px;
+  justify-content: center;
+  /* Center content vertically */
 }
 
 /* Right column - Outfit preview */
 .right-column {
-  width: 50%; /* Made equal to left column */
+  width: 50%;
+  height: 100%;
+  /* Take full height */
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
+  /* Center content */
   padding-top: 0px;
-  margin-top: -120px;
+  margin-top: 0px;
+  /* Remove negative margin */
 }
 
 .outfit-preview {
   width: 100%;
   height: 100%;
   background-image: url("/assets/outfit window.png");
-  background-size: 75%;
+  background-size: contain;
   background-repeat: no-repeat;
   background-position: center center;
   position: relative;
@@ -77,11 +91,15 @@ body {
 .section-container {
   position: relative;
   background-image: url("/assets/tops section.png");
-  background-size: 100%;
+  background-size: 100% 100%;
+  /* Stretch to fill */
   background-repeat: no-repeat;
   background-position: center;
   padding: 20px;
   min-height: 200px;
+  /* Keep min height */
+  height: 100%;
+  /* Fill available height */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -94,23 +112,28 @@ body {
 
 /* Clothes window inside section */
 .clothes-window {
-  width: 160px;
-  height: 160px;
+  width: 60%;
+  /* Responsive width */
+  aspect-ratio: 1 / 1;
+  /* Keep square ratio */
+  max-width: 250px;
+  /* Start hitting limits on huge screens if needed */
+  min-width: 120px;
   background-image: url("/assets/clothes-window.png");
-  background-size: contain;
+  background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 30px 0 20px 0;
+  margin: 10px 0 10px 0;
 }
 
 /* Clothing item display */
 .clothing-item {
-  max-width: 130px;
-  max-height: 130px;
+  width: 80%;
+  height: 80%;
   object-fit: contain;
   image-rendering: pixelated;
 }
@@ -121,7 +144,7 @@ body {
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin: 20px 0 10px 0;
+  margin: 10px 0 5px 0;
   gap: 20px;
 }
 
@@ -138,8 +161,8 @@ body {
   font-size: 14px;
   font-weight: bold;
   color: #000;
-  min-width: 40px;
-  min-height: 40px;
+  flex-shrink: 0;
+  /* Prevent squishing */
 }
 
 .nav-button:hover {
@@ -162,8 +185,10 @@ body {
 /* Bottom buttons */
 .bottom-buttons {
   display: flex;
-  justify-content: center; /* Changed from space-between to center */
-  gap: 30px; /* Small gap between buttons */
+  justify-content: center;
+  /* Changed from space-between to center */
+  gap: 30px;
+  /* Small gap between buttons */
   margin-top: 20px;
 }
 
@@ -204,6 +229,7 @@ body {
   margin-bottom: 10px;
   text-align: center;
 }
+
 /* ===== AI GENERATION STYLES ===== */
 
 /* Loading indicator */
@@ -230,6 +256,7 @@ body {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -345,17 +372,20 @@ body {
 /* Make the root 98.css window fill the screen exactly */
 .window {
   position: fixed;
-  inset: 0; /* top:0 right:0 bottom:0 left:0 */
+  inset: 0;
+  /* top:0 right:0 bottom:0 left:0 */
   width: 100%;
   height: 100%;
   margin: 0;
-  box-sizing: border-box; /* include borders in total size */
+  box-sizing: border-box;
+  /* include borders in total size */
 }
 
 /* Use flex so the title bar stays fixed and body fills the rest */
-.window > .window-body {
+.window>.window-body {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 0; /* prevent overflow from flex children */
+  min-height: 0;
+  /* prevent overflow from flex children */
 }
