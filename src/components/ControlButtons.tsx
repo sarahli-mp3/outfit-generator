@@ -1,4 +1,5 @@
 import { RateLimitResult } from "../types";
+import "../styles/ControlButtons.css";
 
 interface ControlButtonsProps {
   hasApiKey: boolean;

@@ -1,0 +1,83 @@
+/* Layout styles specific to the main App window */
+
+.main-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 10px 20px 20px 20px;
+  box-sizing: border-box;
+  gap: 20px;
+}
+
+/* Left column - Selection area */
+.left-column {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+/* Right column - Outfit preview */
+.right-column {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 0;
+  margin-top: -120px;
+}
+
+/* Mobile layout adjustments for App layout */
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 8px 8px 16px 8px;
+  }
+
+  .left-column,
+  .right-column {
+    width: 100%;
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .right-column {
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .mobile-tabs {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .mobile-tab-menu {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 4px;
+  }
+
+  .mobile-tab-button {
+    flex: 1;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    background: #c0c0c0;
+    border: 2px outset #c0c0c0;
+  }
+
+  .mobile-tab-button.active {
+    border-style: inset;
+  }
+
+  .mobile-tab-panel {
+    border: 2px solid #808080;
+    padding: 8px 4px 4px 4px;
+    background: #c0c0c0;
+  }
+}

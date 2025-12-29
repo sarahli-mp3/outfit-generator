@@ -1,0 +1,126 @@
+/* Styles for the OutfitPreview component */
+
+.outfit-preview {
+  width: 100%;
+  height: 100%;
+  background-size: 75%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.preview-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  height: 70vh;
+  aspect-ratio: 250 / 490;
+  padding: 8px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.preview-image-main {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: auto;
+  display: block;
+}
+
+.preview-progress {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  height: 20px;
+  z-index: 10;
+}
+
+.preview-message {
+  margin-top: 12px;
+}
+
+/* Error and API key messages used inside the preview */
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #000;
+  font-size: 14px;
+  text-align: center;
+  padding: 10px;
+}
+
+.error-message button {
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.error-message button:hover {
+  background: #d0d0d0;
+}
+
+.error-message button:active {
+  border: 2px inset #c0c0c0;
+}
+
+.api-key-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #000;
+  font-size: 14px;
+  text-align: center;
+  padding: 20px;
+}
+
+.composite-notice {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(192, 192, 192, 0.9);
+  border: 2px outset #c0c0c0;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: #000;
+  z-index: 20;
+}
+
+/* Layout-specific tweaks */
+
+.layout-mobilePortrait .preview-frame {
+  height: 95%;
+  width: auto;
+  aspect-ratio: 250 / 490;
+}
+
+.layout-mobileLandscape .preview-frame {
+  width: 240px;
+  height: 460px;
+}
+
+.layout-mobilePortrait .outfit-preview,
+.layout-mobileLandscape .outfit-preview {
+  background-size: contain;
+}

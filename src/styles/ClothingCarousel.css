@@ -1,0 +1,108 @@
+/* Styles for the ClothingCarousel component */
+
+.section-container {
+  position: relative;
+  background-image: url("/assets/tops section.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 20px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottoms-section {
+  background-image: url("/assets/bottoms section.png");
+}
+
+.clothes-window {
+  width: 160px;
+  height: 160px;
+  background-image: url("/assets/clothes-window.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 30px 0 20px 0;
+}
+
+.clothing-item {
+  max-width: 130px;
+  max-height: 130px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 20px 0 10px 0;
+  gap: 20px;
+}
+
+.nav-button {
+  width: 40px;
+  height: 40px;
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.nav-button:hover {
+  background: #d4d0c8;
+}
+
+.nav-button:active {
+  border: 2px inset #c0c0c0;
+  transform: translateY(1px);
+}
+
+.left-button::before {
+  content: "\25C0"; /* ◀ */
+}
+
+.right-button::before {
+  content: "\25B6"; /* ▶ */
+}
+
+/* Mobile portrait adjustments for carousel */
+.layout-mobilePortrait .section-container {
+  padding: 14px;
+  min-height: 170px;
+}
+
+.layout-mobilePortrait .clothes-window {
+  width: 130px;
+  height: 130px;
+  margin: 18px 0 12px 0;
+}
+
+.layout-mobilePortrait .clothing-item {
+  max-width: 110px;
+  max-height: 110px;
+}
+
+.layout-mobilePortrait .nav-button {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  font-size: 10px;
+}

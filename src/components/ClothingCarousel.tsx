@@ -1,4 +1,5 @@
 import { LocalClothingItem } from "../types";
+import "../styles/ClothingCarousel.css";
 
 interface CarouselControls {
   index: number;

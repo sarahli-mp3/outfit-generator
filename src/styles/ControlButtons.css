@@ -1,0 +1,14 @@
+/* Styles for the bottom control buttons (Random, Select, etc.) */
+
+.bottom-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+/* Mobile portrait adjustments for buttons (scaled canvas) */
+.layout-mobilePortrait .bottom-buttons {
+  margin-top: 12px;
+  gap: 16px;
+}

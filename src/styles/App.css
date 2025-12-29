@@ -1,0 +1,101 @@
+/* App shell and fixed-size canvas */
+
+.app-shell {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app-canvas {
+  position: relative;
+  transform-origin: top left;
+}
+
+/* Layout styles specific to the main App window inside the canvas */
+
+.main-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 10px 20px 20px 20px;
+  box-sizing: border-box;
+  gap: 20px;
+}
+
+/* Left column - Selection area */
+.left-column {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+/* Right column - Outfit preview */
+.right-column {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 0;
+  margin-top: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Layout adjustments by mode (controlled via layout-* class on app-canvas) */
+
+.layout-mobilePortrait .main-container {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 8px 8px 16px 8px;
+}
+
+.layout-mobilePortrait .left-column,
+.layout-mobilePortrait .right-column {
+  width: 100%;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.layout-mobilePortrait .right-column {
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 55%; /* slightly reduce preview height to reveal buttons */
+  max-height: 55%;
+}
+
+.layout-mobilePortrait .mobile-tabs {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.layout-mobilePortrait .mobile-tab-menu {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.layout-mobilePortrait .mobile-tab-button {
+  flex: 1;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+}
+
+.layout-mobilePortrait .mobile-tab-button.active {
+  border-style: inset;
+}
+
+.layout-mobilePortrait .mobile-tab-panel {
+  border: 2px solid #808080;
+  padding: 8px 4px 4px 4px;
+  background: #c0c0c0;
+}
