@@ -1,3 +1,5 @@
+import "../styles/UploadSection.css";
+
 interface UploadSectionProps {
   isUploading: boolean;
   showUploadMenu: boolean;
@@ -14,25 +16,15 @@ export function UploadSection({
   onUploadBottoms,
 }: UploadSectionProps) {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "flex-end",
-        marginBottom: "0px",
-        position: "relative",
-      }}
-    >
+    <div className="upload-section">
       <img
         src="/assets/Folder.png"
         alt="Upload"
         onClick={onToggleUploadMenu}
+        className="upload-section__icon"
         style={{
-          width: "32px",
-          height: "32px",
-          imageRendering: "pixelated",
           cursor: isUploading ? "not-allowed" : "pointer",
           opacity: isUploading ? 0.6 : 1,
-          position: "relative",
         }}
         title="Upload new clothing item"
       />
@@ -53,42 +45,16 @@ export function UploadSection({
 
       {/* Upload Menu */}
       {showUploadMenu && !isUploading && (
-        <div
-          style={{
-            position: "absolute",
-            top: "0",
-            right: "36px",
-            background: "#c0c0c0",
-            border: "2px outset #c0c0c0",
-            padding: "4px",
-            zIndex: 1000,
-            display: "flex",
-            flexDirection: "column",
-            gap: "1px",
-            minWidth: "90px",
-          }}
-        >
+        <div className="upload-section__menu">
           <button
             onClick={onUploadTops}
-            style={{
-              padding: "2px 4px",
-              fontSize: "10px",
-              background: "#c0c0c0",
-              border: "1px outset #c0c0c0",
-              cursor: "pointer",
-            }}
+            className="upload-section__menu-button"
           >
             Upload Tops
           </button>
           <button
             onClick={onUploadBottoms}
-            style={{
-              padding: "2px 4px",
-              fontSize: "10px",
-              background: "#c0c0c0",
-              border: "1px outset #c0c0c0",
-              cursor: "pointer",
-            }}
+            className="upload-section__menu-button"
           >
             Upload Bottoms
           </button>

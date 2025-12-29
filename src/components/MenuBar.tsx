@@ -1,30 +1,45 @@
-interface MenuBarProps {
+import "../styles/MenuBar.css";
+import { UploadSection } from "./UploadSection";
 
+interface MenuBarProps {
+  isUploading: boolean;
+  showUploadMenu: boolean;
+  onToggleUploadMenu: () => void;
+  onUploadTops: () => void;
+  onUploadBottoms: () => void;
 }
 
 export function MenuBar({
+  isUploading,
+  showUploadMenu,
+  onToggleUploadMenu,
+  onUploadTops,
+  onUploadBottoms,
 }: MenuBarProps) {
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: 16,
-        padding: "8px 10px",
-        fontSize: 14,
-      }}
-    >
-      <a href="#" style={{ textDecoration: "underline", color: "#000" }}>
-        File
-      </a>
-      <a href="#" style={{ textDecoration: "underline", color: "#000" }}>
-        Edit
-      </a>
-      <a href="#" style={{ textDecoration: "underline", color: "#000" }}>
-        View
-      </a>
-      <a href="#" style={{ textDecoration: "underline", color: "#000" }}>
-        Help
-      </a>
+    <div className="menu-bar">
+      <div className="menu-bar__items">
+        <a href="#" className="menu-bar__item">
+          File
+        </a>
+        <a href="#" className="menu-bar__item">
+          Edit
+        </a>
+        <a href="#" className="menu-bar__item">
+          View
+        </a>
+        <a href="#" className="menu-bar__item">
+          Help
+        </a>
+      </div>
+
+      <UploadSection
+        isUploading={isUploading}
+        showUploadMenu={showUploadMenu}
+        onToggleUploadMenu={onToggleUploadMenu}
+        onUploadTops={onUploadTops}
+        onUploadBottoms={onUploadBottoms}
+      />
       {/* <button
         onClick={onTestConnection}
         style={{

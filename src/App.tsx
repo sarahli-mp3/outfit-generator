@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import "98.css/dist/98.css";
+import "./styles/App.css";
 import { useCarousel } from "./hooks/useCarousel";
 import { useOutfitGeneration } from "./hooks/useOutfitGeneration";
 import {
@@ -9,10 +10,10 @@ import {
 } from "./lib/supabase";
 import { rateLimiter } from "./services/rateLimiter";
 import { LocalClothingItem, RateLimitResult } from "./types";
+import { useLayoutMode } from "./hooks/useLayoutMode";
 
 // Import components
 import { MenuBar } from "./components/MenuBar";
-import { UploadSection } from "./components/UploadSection";
 import { ClothingCarousel } from "./components/ClothingCarousel";
 import { ControlButtons } from "./components/ControlButtons";
 import { OutfitPreview } from "./components/OutfitPreview";
@@ -20,7 +21,7 @@ import { NanoWindow } from "./components/NanoWindow";
 import { OutfitTransferWindow } from "./components/OutfitTransferWindow";
 
 // Debug logger (no-op in production)
-const debugLog = (...args: any[]) => {
+const debugLog = (...args: unknown[]) => {
   if (import.meta.env.DEV) console.log(...args);
 };
 
@@ -36,6 +37,14 @@ function App() {
   const [nanoText, setNanoText] = useState<string>("");
   const [showOutfitTransferWindow, setShowOutfitTransferWindow] =
     useState<boolean>(false);
+  const [activeMobileTab, setActiveMobileTab] = useState<"tops" | "bottoms">(
+    "tops"
+  );
+
+  const { layoutMode, scale, designWidth, designHeight, allowScroll } =
+    useLayoutMode();
+  const isMobilePortrait = layoutMode === "mobilePortrait";
+  const isScaledLayout = layoutMode !== "tabletPlus";
 
   // Load clothing items from Supabase on component mount
   // This is so that you can do this and then you can styill fo this  and this is other this
@@ -101,7 +110,7 @@ function App() {
     };
 
     loadClothingItems();
-  }, []); // Empty dependency array - only run once on mount
+  }, []);
 
   // Configure rate limiter for better user experience
   useEffect(() => {
@@ -281,7 +290,7 @@ function App() {
 
   // Progress animation effect
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
 
     if (isGenerating) {
       setGenerationProgress(0);
@@ -375,7 +384,7 @@ function App() {
 
       // Use the hook's generateNanoOutfit method
       await generateNanoOutfit(occasionText);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error in nano styling:", error);
       // Error handling is already done in the hook
     }
@@ -398,7 +407,7 @@ function App() {
       try {
         debugLog("Starting outfit transfer with file:", file.name);
         await generateOutfitTransfer(file);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error in outfit transfer:", error);
         // Error handling is already done in the hook
       }
@@ -407,33 +416,39 @@ function App() {
   );
   return (
     <div
-      className="window"
-      style={{ width: "100vw", height: "100vh", margin: 0 }}
+      className="app-shell"
+      style={{
+        overflowY: allowScroll ? "auto" : "hidden",
+        overflowX: "hidden",
+      }}
     >
-      <div className="title-bar">
-        <div className="title-bar-text">What should I wear today?</div>
-        <div className="title-bar-controls">
-          <button aria-label="Minimize"></button>
-          <button aria-label="Maximize"></button>
-          <button aria-label="Close"></button>
-        </div>
-      </div>
       <div
-        className="window-body"
+        className={`app-canvas layout-${layoutMode}`}
         style={{
-          padding: 0,
-          height: "calc(100vh - 36px)",
-          background: "#c0c0c0",
+          width: isScaledLayout ? designWidth : "100%",
+          height: isScaledLayout ? designHeight : "100%",
+          transform: isScaledLayout ? `scale(${scale})` : "none",
         }}
       >
-        <MenuBar />
-        <div
-          className="main-container"
-          style={{ width: "100%", height: "calc(100% - 32px)" }}
-        >
-          {/* Left Column - Selection Area */}
-          <div className="left-column">
-            <UploadSection
+        <div className="window" style={{ margin: 0 }}>
+          <div className="title-bar">
+            <div className="title-bar-text">What should I wear today?</div>
+            <div className="title-bar-controls">
+              <button aria-label="Minimize"></button>
+              <button aria-label="Maximize"></button>
+              <button aria-label="Close"></button>
+            </div>
+          </div>
+
+          <div
+            className="window-body"
+            style={{
+              padding: 0,
+              height: "calc(100% - 36px)",
+              background: "#c0c0c0",
+            }}
+          >
+            <MenuBar
               isUploading={isUploading}
               showUploadMenu={showUploadMenu}
               onToggleUploadMenu={() => setShowUploadMenu(!showUploadMenu)}
@@ -441,39 +456,118 @@ function App() {
               onUploadBottoms={() => handleFileUpload("bottoms")}
             />
 
-            <ClothingCarousel
-              items={topsList}
-              carousel={topsCarousel}
-              category="tops"
-              onImageError={handleImageError}
-            />
+            <div
+              className="main-container"
+              style={{ width: "100%", height: "calc(100% - 64px)" }}
+            >
+              {isMobilePortrait ? (
+                <>
+                  <OutfitPreview
+                    hasApiKey={hasApiKey}
+                    isGenerating={isGenerating}
+                    generationProgress={generationProgress}
+                    error={error}
+                    generatedImage={generatedImage}
+                    onClearGeneratedImage={clearGeneratedImage}
+                  />
 
-            <ClothingCarousel
-              items={bottomsList}
-              carousel={bottomsCarousel}
-              category="bottoms"
-              onImageError={handleImageError}
-            />
+                  <div className="mobile-tabs tabs">
+                    <div className="mobile-tab-menu" role="tablist">
+                      <button
+                        type="button"
+                        className={`mobile-tab-button${
+                          activeMobileTab === "tops" ? " active" : ""
+                        }`}
+                        aria-selected={activeMobileTab === "tops"}
+                        onClick={() => setActiveMobileTab("tops")}
+                      >
+                        Tops
+                      </button>
+                      <button
+                        type="button"
+                        className={`mobile-tab-button${
+                          activeMobileTab === "bottoms" ? " active" : ""
+                        }`}
+                        aria-selected={activeMobileTab === "bottoms"}
+                        onClick={() => setActiveMobileTab("bottoms")}
+                      >
+                        Bottoms
+                      </button>
+                    </div>
+                    <div className="mobile-tab-panel" role="tabpanel">
+                      {activeMobileTab === "tops" ? (
+                        <ClothingCarousel
+                          items={topsList}
+                          carousel={topsCarousel}
+                          category="tops"
+                          onImageError={handleImageError}
+                        />
+                      ) : (
+                        <ClothingCarousel
+                          items={bottomsList}
+                          carousel={bottomsCarousel}
+                          category="bottoms"
+                          onImageError={handleImageError}
+                        />
+                      )}
 
-            <ControlButtons
-              hasApiKey={hasApiKey}
-              canGenerateNow={canGenerateNow}
-              rateLimitStatus={rateLimitStatus}
-              onRandom={handleRandom}
-              onSelect={handleSelect}
-              onNanoBananify={() => setShowNanoWindow(true)}
-              onOutfitTransfer={() => setShowOutfitTransferWindow(true)}
-            />
+                      <ControlButtons
+                        hasApiKey={hasApiKey}
+                        canGenerateNow={canGenerateNow}
+                        rateLimitStatus={rateLimitStatus}
+                        onRandom={handleRandom}
+                        onSelect={handleSelect}
+                        onNanoBananify={() => setShowNanoWindow(true)}
+                        onOutfitTransfer={() =>
+                          setShowOutfitTransferWindow(true)
+                        }
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Left Column - Selection Area */}
+                  <div className="left-column">
+                    <ClothingCarousel
+                      items={topsList}
+                      carousel={topsCarousel}
+                      category="tops"
+                      onImageError={handleImageError}
+                    />
+
+                    <ClothingCarousel
+                      items={bottomsList}
+                      carousel={bottomsCarousel}
+                      category="bottoms"
+                      onImageError={handleImageError}
+                    />
+
+                    <ControlButtons
+                      hasApiKey={hasApiKey}
+                      canGenerateNow={canGenerateNow}
+                      rateLimitStatus={rateLimitStatus}
+                      onRandom={handleRandom}
+                      onSelect={handleSelect}
+                      onNanoBananify={() => setShowNanoWindow(true)}
+                      onOutfitTransfer={() =>
+                        setShowOutfitTransferWindow(true)
+                      }
+                    />
+                  </div>
+
+                  <OutfitPreview
+                    hasApiKey={hasApiKey}
+                    isGenerating={isGenerating}
+                    generationProgress={generationProgress}
+                    error={error}
+                    generatedImage={generatedImage}
+                    onClearGeneratedImage={clearGeneratedImage}
+                  />
+                </>
+              )}
+            </div>
           </div>
-
-          <OutfitPreview
-            hasApiKey={hasApiKey}
-            isGenerating={isGenerating}
-            generationProgress={generationProgress}
-            error={error}
-            generatedImage={generatedImage}
-            onClearGeneratedImage={clearGeneratedImage}
-          />
         </div>
       </div>
 

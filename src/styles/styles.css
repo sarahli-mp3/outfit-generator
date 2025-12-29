@@ -102,14 +102,12 @@ body {
   transform: translateY(1px);
 }
 
-/* Make the root 98.css window fill the screen exactly */
+/* Make the root 98.css window fill its canvas */
 .window {
-  position: fixed;
-  inset: 0; /* top:0 right:0 bottom:0 left:0 */
   width: 100%;
   height: 100%;
   margin: 0;
-  box-sizing: border-box; /* include borders in total size */
+  box-sizing: border-box;
 }
 
 /* Use flex so the title bar stays fixed and body fills the rest */

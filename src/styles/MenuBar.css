@@ -1,0 +1,29 @@
+/* Styles for the top menu bar (File, Edit, View, Help) */
+
+.menu-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+.menu-bar__items {
+  display: flex;
+  gap: 16px;
+}
+
+.menu-bar__item {
+  text-decoration: underline;
+  color: #000;
+}
+
+/* Mobile portrait: slightly tighter spacing so content fits the canvas */
+.layout-mobilePortrait .menu-bar {
+  font-size: 12px;
+  padding: 4px 6px;
+}
+
+.layout-mobilePortrait .menu-bar__items {
+  gap: 10px;
+}
