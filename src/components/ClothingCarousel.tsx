@@ -1,4 +1,5 @@
 import { LocalClothingItem } from "../types";
+import styles from './ClothingCarousel.module.scss';
 
 interface CarouselControls {
   index: number;
@@ -20,14 +21,11 @@ export function ClothingCarousel({
   onImageError,
 }: ClothingCarouselProps) {
   const isTops = category === "tops";
-  const sectionClass = isTops
-    ? "section-container"
-    : "section-container bottoms-section";
   const emptyMessage = isTops ? "No tops available" : "No bottoms available";
 
   return (
-    <div className={sectionClass}>
-      <div className="nav-buttons">
+    <div className={`${styles.sectionContainer} ${isTops ? '' : styles.bottomsSection}`}>
+      <div className={styles.navButtons}>
         <button
           className="nav-button left-button"
           onClick={carousel.prev}
@@ -35,7 +33,7 @@ export function ClothingCarousel({
           aria-label={`Previous ${category.slice(0, -1)}`}
           disabled={items.length === 0}
         />
-        <div className="clothes-window">
+        <div className={styles.clothesWindow}>
           {items.length > 0 && items[carousel.index] ? (
             <img
               src={items[carousel.index].imageUrl}
