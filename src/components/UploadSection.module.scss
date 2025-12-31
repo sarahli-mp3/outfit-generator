@@ -1,0 +1,10 @@
+.upload {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0px;
+  position: relative;
+  
+  @media (max-width: 728px) {
+    justify-content: flex-start;
+  }
+}

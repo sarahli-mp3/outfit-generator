@@ -19,6 +19,8 @@ import { OutfitPreview } from "./components/OutfitPreview";
 import { NanoWindow } from "./components/NanoWindow";
 import { OutfitTransferWindow } from "./components/OutfitTransferWindow";
 
+import styles from './App.module.scss';
+
 // Debug logger (no-op in production)
 const debugLog = (...args: any[]) => {
   if (import.meta.env.DEV) console.log(...args);
@@ -406,10 +408,7 @@ function App() {
     [hasApiKey, canGenerate, generateOutfitTransfer]
   );
   return (
-    <div
-      className="window"
-      style={{ width: "100vw", height: "100vh", margin: 0 }}
-    >
+    <div className={styles.window}>
       <div className="title-bar">
         <div className="title-bar-text">What should I wear today?</div>
         <div className="title-bar-controls">
@@ -418,21 +417,11 @@ function App() {
           <button aria-label="Close"></button>
         </div>
       </div>
-      <div
-        className="window-body"
-        style={{
-          padding: 0,
-          height: "calc(100vh - 36px)",
-          background: "#c0c0c0",
-        }}
-      >
+      <div className={styles.windowBody}>
         <MenuBar />
-        <div
-          className="main-container"
-          style={{ width: "100%", height: "calc(100% - 32px)" }}
-        >
+        <div className={styles.mainContainer}>
           {/* Left Column - Selection Area */}
-          <div className="left-column">
+          <div className={styles.leftColumn}>
             <UploadSection
               isUploading={isUploading}
               showUploadMenu={showUploadMenu}

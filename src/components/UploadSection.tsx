@@ -1,3 +1,5 @@
+import styles from './UploadSection.module.scss';
+
 interface UploadSectionProps {
   isUploading: boolean;
   showUploadMenu: boolean;
@@ -14,14 +16,7 @@ export function UploadSection({
   onUploadBottoms,
 }: UploadSectionProps) {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "flex-end",
-        marginBottom: "0px",
-        position: "relative",
-      }}
-    >
+    <div className={styles.upload}>
       <img
         src="/assets/Folder.png"
         alt="Upload"

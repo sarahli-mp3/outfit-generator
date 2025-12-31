@@ -1,0 +1,41 @@
+.mainContainer {
+  box-sizing: border-box;
+  display: flex;
+  gap: 20px; /* Increased gap to better balance the columns */
+  padding: 10px 20px 20px 20px;
+  height: calc(100% - 32px);
+  justify-content: center;
+  width: 100%;
+
+  @media (max-width: 728px) {
+    flex-direction: column-reverse;
+    height: auto;
+    overflow: hidden;
+  }
+}
+
+.window {
+  height: 100vh;
+  margin: 0;
+  overflow-y: auto;
+  width: 100vw;
+}
+
+.windowBody {
+  padding: 0;
+  height: calc(100vh - 36px);
+  background: #c0c0c0;
+}
+
+// turns bottom row below 728px
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 10px;
+
+  @media (max-width: 728px) {
+    align-items: center;
+    overflow: hidden;
+  }
+}
