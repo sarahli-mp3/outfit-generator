@@ -104,7 +104,10 @@ export function NanoWindow({
             rows={4}
             value={nanoText}
             onChange={(e) => onTextChange(e.target.value)}
-            style={{ width: "100%" }}
+            style={{ width: "100%",
+              resize: "none",
+              boxSizing: "border-box"
+            }}
           ></textarea>
         </div>
         <div style={{ textAlign: "center" }}>
