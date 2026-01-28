@@ -54,7 +54,7 @@ function cacheKeyFor(
 }
 
 function buildPrompt(): string {
-  return "Create a new image by combining the elements from the provided images. Take the top clothing item from image 1 and the bottom clothing item from image 2, and place them naturally onto the body in image 3 so it looks like the person is wearing the selected outfit. Fit to body shape and pose, preserve garment proportions and textures, match lighting and shadows, handle occlusion by hair and arms. CRITICAL: The background must be completely white (#FFFFFF) - do not use black, transparent, or any other background color. Replace any existing background with solid white. Do not change the person identity or add accessories.";
+  return "Virtual try-on task: Dress the person in image 3 with the top from image 1 and bottom from image 2. CRITICAL REQUIREMENTS: 1) The person's FACE must remain EXACTLY identical - same facial features, expression, skin tone, and hair. Do NOT alter, distort, or regenerate the face in any way. 2) Keep the same body pose and proportions from image 3. 3) Only replace the clothing regions - blend the new garments naturally onto the body. 4) Match lighting and shadows to the original photo. 5) Background must be solid white (#FFFFFF). 6) Do not add accessories or change anything about the person except their clothes.";
 }
 
 // Intentionally unused experimental prompt helpers removed to reduce noise
@@ -301,7 +301,7 @@ async function generateOutfitTransferInternal(
   }
 
   const transferPrompt =
-    "Using the provided images, place the outfit from image 2 onto the person in image 1. Keep the face, body shape, and background of image 1 completely unchanged. Ensure the outfit integrates naturally with the model's body shape, pose, and lighting. CRITICAL: The background must be completely white (#FFFFFF) - do not use black, transparent, or any other background color. Do not change the person identity or add accessories.";
+    "Virtual try-on task: Transfer the outfit from image 2 onto the person in image 1. CRITICAL REQUIREMENTS: 1) The person's FACE must remain EXACTLY identical - same facial features, expression, skin tone, and hair. Do NOT alter, distort, or regenerate the face in any way. 2) Keep the exact same body pose and proportions from image 1. 3) Only replace the clothing regions with the outfit from image 2. 4) Match lighting and shadows to image 1. 5) Background must be solid white (#FFFFFF). 6) Do not add accessories or change anything except the clothes.";
 
   const key = `transfer_${MODEL}|${inspirationImagePath}|${bodyPath}|v1:${transferPrompt.length}`;
 
@@ -399,7 +399,7 @@ export class OutfitGenerator {
     occasion: string,
     bodyPath: string = DEFAULT_BODY_PATH
   ): Promise<OutfitGenerationResult> {
-    const customPrompt = `Using the provided image of a model, please add an outfit to the model that would work in this occasion: ${occasion}. Ensure the outfit integrates naturally with the model's body shape, pose, and lighting. Keep the background plain white so the focus stays on the model and the outfit.`;
+    const customPrompt = `Virtual try-on task: Add an outfit suitable for "${occasion}" to the person in the image. CRITICAL REQUIREMENTS: 1) The person's FACE must remain EXACTLY identical - same facial features, expression, skin tone, and hair. Do NOT alter, distort, or regenerate the face in any way. 2) Keep the exact same body pose and proportions. 3) Only add/modify the clothing regions. 4) Match lighting and shadows to the original. 5) Background must be solid white (#FFFFFF). 6) Do not add accessories or change anything except the clothes.`;
 
     return generateNanoOutfitInternal(bodyPath, customPrompt);
   }
