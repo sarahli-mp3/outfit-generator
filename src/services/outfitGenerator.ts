@@ -54,7 +54,26 @@ function cacheKeyFor(
 }
 
 function buildPrompt(): string {
-  return "Virtual try-on task: Dress the person in image 3 with the top from image 1 and bottom from image 2. CRITICAL REQUIREMENTS: 1) The person's FACE must remain EXACTLY identical - same facial features, expression, skin tone, and hair. Do NOT alter, distort, or regenerate the face in any way. 2) Keep the same body pose and proportions from image 3. 3) Only replace the clothing regions - blend the new garments naturally onto the body. 4) Match lighting and shadows to the original photo. 5) Background must be solid white (#FFFFFF). 6) Do not add accessories or change anything about the person except their clothes.";
+  return `Clothing-only inpainting task: You must treat this as a MASKED EDIT where ONLY the clothing pixels change.
+
+INPUT: Image 3 = person photo, Image 1 = top garment, Image 2 = bottom garment.
+
+TASK: Replace ONLY the clothing regions in image 3 with the garments from images 1 and 2.
+
+PROTECTED REGIONS (copy pixel-perfect from image 3, NO modifications allowed):
+- Face: every facial feature, skin texture, lighting, and expression
+- Skin: all visible skin must keep EXACT original color, tone, and lighting
+- Hair: same color, style, and position
+- Hands and arms: same skin tone and position
+- Background: solid white (#FFFFFF)
+
+EDITABLE REGION (clothing area only):
+- Remove existing clothes and replace with top from image 1 and bottom from image 2
+- Fit garments naturally to body shape and pose
+- Match garment lighting to the original photo lighting
+- Preserve garment colors, patterns, and text exactly as shown
+
+OUTPUT: The original person wearing the new outfit, looking like a natural photo. The person must be instantly recognizable as the same individual.`;
 }
 
 // Intentionally unused experimental prompt helpers removed to reduce noise
@@ -300,8 +319,25 @@ async function generateOutfitTransferInternal(
     };
   }
 
-  const transferPrompt =
-    "Virtual try-on task: Transfer the outfit from image 2 onto the person in image 1. CRITICAL REQUIREMENTS: 1) The person's FACE must remain EXACTLY identical - same facial features, expression, skin tone, and hair. Do NOT alter, distort, or regenerate the face in any way. 2) Keep the exact same body pose and proportions from image 1. 3) Only replace the clothing regions with the outfit from image 2. 4) Match lighting and shadows to image 1. 5) Background must be solid white (#FFFFFF). 6) Do not add accessories or change anything except the clothes.";
+  const transferPrompt = `Clothing-only inpainting task: You must treat this as a MASKED EDIT where ONLY the clothing pixels change.
+
+INPUT: Image 1 = person photo, Image 2 = reference outfit photo.
+
+TASK: Replace ONLY the clothing regions in image 1 with the outfit visible in image 2.
+
+PROTECTED REGIONS (copy pixel-perfect from image 1, NO modifications allowed):
+- Face: every facial feature, skin texture, lighting, and expression
+- Skin: all visible skin must keep EXACT original color, tone, and lighting
+- Hair: same color, style, and position
+- Hands and arms: same skin tone and position
+- Background: solid white (#FFFFFF)
+
+EDITABLE REGION (clothing area only):
+- Remove existing clothes and replace with the outfit from image 2
+- Fit garments naturally to body shape and pose from image 1
+- Match garment lighting to the original photo lighting
+
+OUTPUT: The original person wearing the transferred outfit, looking like a natural photo. The person must be instantly recognizable as the same individual.`;
 
   const key = `transfer_${MODEL}|${inspirationImagePath}|${bodyPath}|v1:${transferPrompt.length}`;
 
@@ -399,7 +435,25 @@ export class OutfitGenerator {
     occasion: string,
     bodyPath: string = DEFAULT_BODY_PATH
   ): Promise<OutfitGenerationResult> {
-    const customPrompt = `Virtual try-on task: Add an outfit suitable for "${occasion}" to the person in the image. CRITICAL REQUIREMENTS: 1) The person's FACE must remain EXACTLY identical - same facial features, expression, skin tone, and hair. Do NOT alter, distort, or regenerate the face in any way. 2) Keep the exact same body pose and proportions. 3) Only add/modify the clothing regions. 4) Match lighting and shadows to the original. 5) Background must be solid white (#FFFFFF). 6) Do not add accessories or change anything except the clothes.`;
+    const customPrompt = `Clothing-only inpainting task: You must treat this as a MASKED EDIT where ONLY the clothing pixels change.
+
+INPUT: Image of a person who needs an outfit for: "${occasion}"
+
+TASK: Generate and add ONLY clothing appropriate for the occasion to the person.
+
+PROTECTED REGIONS (copy pixel-perfect from original, NO modifications allowed):
+- Face: every facial feature, skin texture, lighting, and expression
+- Skin: all visible skin must keep EXACT original color, tone, and lighting
+- Hair: same color, style, and position
+- Hands and arms: same skin tone and position
+- Background: solid white (#FFFFFF)
+
+EDITABLE REGION (clothing area only):
+- Add stylish, appropriate clothing for "${occasion}"
+- Fit garments naturally to body shape and pose
+- Match garment lighting to the original photo lighting
+
+OUTPUT: The original person wearing a new outfit for ${occasion}, looking like a natural photo. The person must be instantly recognizable as the same individual.`;
 
     return generateNanoOutfitInternal(bodyPath, customPrompt);
   }
