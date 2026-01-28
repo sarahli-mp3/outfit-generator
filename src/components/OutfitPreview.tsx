@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { ShareMenu } from "./ShareMenu";
+
 interface OutfitPreviewProps {
   hasApiKey: boolean;
   isGenerating: boolean;
@@ -15,6 +18,8 @@ export function OutfitPreview({
   generatedImage,
   onClearGeneratedImage,
 }: OutfitPreviewProps) {
+  const [showShareMenu, setShowShareMenu] = useState(false);
+
   return (
     <div className="right-column">
       <div>
@@ -70,7 +75,7 @@ export function OutfitPreview({
 
         {!hasApiKey && (
           <div className="api-key-message">
-            <p>⚠️ Google API key required</p>
+            <p>Warning: Google API key required</p>
             <p>Please set VITE_GOOGLE_API_KEY in your .env file</p>
           </div>
         )}
@@ -109,6 +114,21 @@ export function OutfitPreview({
                 display: "block",
               }}
             />
+            {/* Share button */}
+            <div className="share-button-container">
+              <button
+                className="share-button"
+                onClick={() => setShowShareMenu(!showShareMenu)}
+              >
+                Share
+              </button>
+              {showShareMenu && (
+                <ShareMenu
+                  imageUrl={generatedImage}
+                  onClose={() => setShowShareMenu(false)}
+                />
+              )}
+            </div>
           </div>
         )}
       </div>

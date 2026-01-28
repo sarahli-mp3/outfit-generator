@@ -36,7 +36,7 @@ export interface OutfitGenerationResult {
 }
 
 // Constants
-const MODEL = "gemini-2.5-flash-image-preview";
+const MODEL = "gemini-3-pro-image-preview";
 const DEFAULT_BODY_PATH = "/assets/model.png";
 const CACHE_PREFIX = "outfit_";
 
