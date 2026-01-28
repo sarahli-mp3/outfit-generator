@@ -316,6 +316,82 @@ body {
   padding: 20px;
 }
 
+/* ===== SHARE MENU STYLES ===== */
+
+/* Share button container */
+.share-button-container {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+/* Share button */
+.share-button {
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  padding: 4px 16px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", "Segoe UI", sans-serif;
+  color: #000;
+}
+
+.share-button:hover {
+  background: #d4d0c8;
+}
+
+.share-button:active {
+  border: 2px inset #c0c0c0;
+}
+
+/* Share menu dropdown */
+.share-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 4px;
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  min-width: 160px;
+  z-index: 100;
+}
+
+/* Share menu items */
+.share-menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", "Segoe UI", sans-serif;
+  color: #000;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.share-menu-item:hover {
+  background: #000080;
+  color: #fff;
+}
+
+.share-menu-item:active {
+  background: #000080;
+  color: #fff;
+}
+
+/* Share menu icon */
+.share-menu-icon {
+  margin-right: 8px;
+  font-size: 14px;
+}
+
 /* Folder button */
 .folder-button {
   position: absolute;

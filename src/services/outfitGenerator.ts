@@ -36,7 +36,7 @@ export interface OutfitGenerationResult {
 }
 
 // Constants
-const MODEL = "gemini-2.5-flash-image-preview";
+const MODEL = "gemini-3-pro-image-preview";
 const DEFAULT_BODY_PATH = "/assets/model.png";
 const CACHE_PREFIX = "outfit_";
 
@@ -54,7 +54,26 @@ function cacheKeyFor(
 }
 
 function buildPrompt(): string {
-  return "Create a new image by combining the elements from the provided images. Take the top clothing item from image 1 and the bottom clothing item from image 2, and place them naturally onto the body in image 3 so it looks like the person is wearing the selected outfit. Fit to body shape and pose, preserve garment proportions and textures, match lighting and shadows, handle occlusion by hair and arms. CRITICAL: The background must be completely white (#FFFFFF) - do not use black, transparent, or any other background color. Replace any existing background with solid white. Do not change the person identity or add accessories.";
+  return `Clothing-only inpainting task: You must treat this as a MASKED EDIT where ONLY the clothing pixels change.
+
+INPUT: Image 3 = person photo, Image 1 = top garment, Image 2 = bottom garment.
+
+TASK: Replace ONLY the clothing regions in image 3 with the garments from images 1 and 2.
+
+PROTECTED REGIONS (copy pixel-perfect from image 3, NO modifications allowed):
+- Face: every facial feature, skin texture, lighting, and expression
+- Skin: all visible skin must keep EXACT original color, tone, and lighting
+- Hair: same color, style, and position
+- Hands and arms: same skin tone and position
+- Background: solid white (#FFFFFF)
+
+EDITABLE REGION (clothing area only):
+- Remove existing clothes and replace with top from image 1 and bottom from image 2
+- Fit garments naturally to body shape and pose
+- Match garment lighting to the original photo lighting
+- Preserve garment colors, patterns, and text exactly as shown
+
+OUTPUT: The original person wearing the new outfit, looking like a natural photo. The person must be instantly recognizable as the same individual.`;
 }
 
 // Intentionally unused experimental prompt helpers removed to reduce noise
@@ -300,8 +319,25 @@ async function generateOutfitTransferInternal(
     };
   }
 
-  const transferPrompt =
-    "Using the provided images, place the outfit from image 2 onto the person in image 1. Keep the face, body shape, and background of image 1 completely unchanged. Ensure the outfit integrates naturally with the model's body shape, pose, and lighting. CRITICAL: The background must be completely white (#FFFFFF) - do not use black, transparent, or any other background color. Do not change the person identity or add accessories.";
+  const transferPrompt = `Clothing-only inpainting task: You must treat this as a MASKED EDIT where ONLY the clothing pixels change.
+
+INPUT: Image 1 = person photo, Image 2 = reference outfit photo.
+
+TASK: Replace ONLY the clothing regions in image 1 with the outfit visible in image 2.
+
+PROTECTED REGIONS (copy pixel-perfect from image 1, NO modifications allowed):
+- Face: every facial feature, skin texture, lighting, and expression
+- Skin: all visible skin must keep EXACT original color, tone, and lighting
+- Hair: same color, style, and position
+- Hands and arms: same skin tone and position
+- Background: solid white (#FFFFFF)
+
+EDITABLE REGION (clothing area only):
+- Remove existing clothes and replace with the outfit from image 2
+- Fit garments naturally to body shape and pose from image 1
+- Match garment lighting to the original photo lighting
+
+OUTPUT: The original person wearing the transferred outfit, looking like a natural photo. The person must be instantly recognizable as the same individual.`;
 
   const key = `transfer_${MODEL}|${inspirationImagePath}|${bodyPath}|v1:${transferPrompt.length}`;
 
@@ -399,7 +435,25 @@ export class OutfitGenerator {
     occasion: string,
     bodyPath: string = DEFAULT_BODY_PATH
   ): Promise<OutfitGenerationResult> {
-    const customPrompt = `Using the provided image of a model, please add an outfit to the model that would work in this occasion: ${occasion}. Ensure the outfit integrates naturally with the model's body shape, pose, and lighting. Keep the background plain white so the focus stays on the model and the outfit.`;
+    const customPrompt = `Clothing-only inpainting task: You must treat this as a MASKED EDIT where ONLY the clothing pixels change.
+
+INPUT: Image of a person who needs an outfit for: "${occasion}"
+
+TASK: Generate and add ONLY clothing appropriate for the occasion to the person.
+
+PROTECTED REGIONS (copy pixel-perfect from original, NO modifications allowed):
+- Face: every facial feature, skin texture, lighting, and expression
+- Skin: all visible skin must keep EXACT original color, tone, and lighting
+- Hair: same color, style, and position
+- Hands and arms: same skin tone and position
+- Background: solid white (#FFFFFF)
+
+EDITABLE REGION (clothing area only):
+- Add stylish, appropriate clothing for "${occasion}"
+- Fit garments naturally to body shape and pose
+- Match garment lighting to the original photo lighting
+
+OUTPUT: The original person wearing a new outfit for ${occasion}, looking like a natural photo. The person must be instantly recognizable as the same individual.`;
 
     return generateNanoOutfitInternal(bodyPath, customPrompt);
   }
