@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 // Types
 interface UseCarouselReturn {
@@ -29,6 +29,26 @@ export function useCarousel(itemsLength: number, storageKey: string): UseCarouse
     }
     return 0;
   });
+
+  // itemsLength is often 0 on first render (data still loading async), so the
+  // initializer above can't restore the saved index yet. Retry once the items
+  // actually arrive.
+  const didRestoreRef = useRef(false);
+  useEffect(() => {
+    if (didRestoreRef.current || itemsLength <= 0) return;
+    didRestoreRef.current = true;
+    try {
+      const saved = localStorage.getItem(storageKeyFull);
+      if (saved) {
+        const parsedIndex = parseInt(saved, 10);
+        if (!isNaN(parsedIndex)) {
+          setIndexState(Math.max(0, Math.min(parsedIndex, itemsLength - 1)));
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load carousel state from localStorage:', error);
+    }
+  }, [itemsLength, storageKeyFull]);
 
   const setIndex = useCallback((newIndex: number) => {
     const clampedIndex = Math.max(0, Math.min(newIndex, itemsLength - 1));

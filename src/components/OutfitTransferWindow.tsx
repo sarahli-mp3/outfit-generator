@@ -33,7 +33,7 @@ export function OutfitTransferWindow({
   const handleTransferClick = () => {
     if (uploadedImage) {
       onUploadImage(uploadedImage);
-      onClose();
+      handleClose();
     }
   };
 
