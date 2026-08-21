@@ -84,7 +84,13 @@ export function useOutfitGeneration(): UseOutfitGenerationReturn {
 
         // Try AI generation first
         const result: OutfitGenerationResult =
-          await outfitGenerator.generateOutfit(top.imageUrl, bottom.imageUrl);
+          await outfitGenerator.generateOutfit(
+            top.imageUrl,
+            bottom.imageUrl,
+            undefined,
+            top.id,
+            bottom.id
+          );
 
         if (result.success && result.imageUrl) {
           console.log("✨ AI-generated image created successfully");

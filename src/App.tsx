@@ -189,22 +189,36 @@ function App() {
               }
             );
 
-            // Wait for all uploads to complete
-            const newItems = await Promise.all(uploadPromises);
+            // Wait for all uploads to settle; keep whichever succeeded even
+            // if some fail, since successful ones are already saved remotely.
+            const results = await Promise.allSettled(uploadPromises);
+            const newItems = results
+              .filter(
+                (r): r is PromiseFulfilledResult<LocalClothingItem> =>
+                  r.status === "fulfilled"
+              )
+              .map((r) => r.value);
+            const failedCount = results.length - newItems.length;
 
-            if (category === "tops") {
-              setTopsList((prev) => [...prev, ...newItems]);
-            } else {
-              setBottomsList((prev) => [...prev, ...newItems]);
+            if (newItems.length > 0) {
+              if (category === "tops") {
+                setTopsList((prev) => [...prev, ...newItems]);
+              } else {
+                setBottomsList((prev) => [...prev, ...newItems]);
+              }
+
+              debugLog(
+                `Added ${newItems.length} new ${category}:`,
+                newItems.map((item) => item.name)
+              );
             }
 
-            debugLog(
-              `Added ${newItems.length} new ${category}:`,
-              newItems.map((item) => item.name)
-            );
-          } catch (error) {
-            console.error(`Error uploading ${category}:`, error);
-            alert(`Failed to upload some ${category}. Please try again.`);
+            if (failedCount > 0) {
+              console.error(
+                `Error uploading ${failedCount} of ${results.length} ${category}`
+              );
+              alert(`Failed to upload ${failedCount} ${category}. Please try again.`);
+            }
           } finally {
             setIsUploading(false);
           }
@@ -317,7 +331,11 @@ function App() {
 
   // Get current rate limit status for button state
   const rateLimitStatus: RateLimitResult = canGenerate();
-  const canGenerateNow = hasApiKey && rateLimitStatus.allowed;
+  const canGenerateNow =
+    hasApiKey &&
+    rateLimitStatus.allowed &&
+    topsList.length > 0 &&
+    bottomsList.length > 0;
 
   // Log rate limit status periodically
   useEffect(() => {
